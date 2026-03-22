@@ -14,18 +14,18 @@
 </p>
 
 <p align="center">
-  <a href="#-features">Features</a> •
-  <a href="#-tech-stack">Tech Stack</a> •
-  <a href="#-architecture">Architecture</a> •
-  <a href="#-getting-started">Getting Started</a> •
-  <a href="#-database-schema">Database</a> •
-  <a href="#-custom-data-structures">Data Structures</a> •
-  <a href="#-screenshots">Screenshots</a> •
-  <a href="#-contributing">Contributing</a>
+  <a href="#features">Features</a> •
+  <a href="#tech-stack">Tech Stack</a> •
+  <a href="#architecture">Architecture</a> •
+  <a href="#database-schema">Database Schema</a> •
+  <a href="#data-structures">Data Structures</a> •
+  <a href="#getting-started">Getting Started</a> •
+  <a href="#api-endpoints">API Endpoints</a>
 </p>
 
 ---
 
+<a id="features"></a>
 ## ✨ Features
 
 ### Core Marketplace
@@ -56,6 +56,7 @@
 
 ---
 
+<a id="tech-stack"></a>
 ## 🛠️ Tech Stack
 
 <table>
@@ -118,6 +119,7 @@
 
 ---
 
+<a id="architecture"></a>
 ## 🏗️ Architecture
 
 ### Project Structure
@@ -184,6 +186,7 @@ SkillVerse/
 
 ---
 
+<a id="database-schema"></a>
 ## 🗄️ Database Schema
 
 The application uses **PostgreSQL** with **15 interrelated tables** designed following proper normalization principles.
@@ -494,6 +497,7 @@ AvailabilitySlot ── 1:1 ──→ Booking  (slot reserved by booking)
 
 ---
 
+<a id="data-structures"></a>
 ## 🧬 Custom Data Structures
 
 All data structures are **built entirely from scratch** — no external libraries used for core logic.
@@ -533,6 +537,7 @@ All data structures are **built entirely from scratch** — no external librarie
 
 ---
 
+<a id="getting-started"></a>
 ## 🚀 Getting Started
 
 ### Prerequisites
@@ -651,6 +656,7 @@ The server starts at **http://localhost:5000**
 
 ---
 
+<a id="api-endpoints"></a>
 ## 📄 API Endpoints
 
 ### Authentication
