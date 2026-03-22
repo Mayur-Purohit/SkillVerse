@@ -1,0 +1,50 @@
+# ─── Python ──────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# ─── Virtual Environment ─────────────────────────────────────
+venv/
+env/
+.venv/
+
+# ─── Environment Variables ────────────────────────────────────
+.env
+
+# ─── Database ─────────────────────────────────────────────────
+instance/
+*.db
+*.sqlite
+*.sqlite3
+
+# ─── Generated Files ─────────────────────────────────────────
+static/certificates/*.pdf
+invoices/
+transactions.txt
+wallets.txt
+
+# ─── IDE / Editor ─────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ─── OS Files ─────────────────────────────────────────────────
+.DS_Store
+Desktop.ini
+
+# ─── Uploads (user-generated content) ────────────────────────
+static/uploads/*
+!static/uploads/.gitkeep
+static/avatars/*
+!static/avatars/.gitkeep
+static/portfolio/*
+!static/portfolio/.gitkeep
