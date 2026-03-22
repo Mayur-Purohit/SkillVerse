@@ -190,157 +190,215 @@ The application uses **PostgreSQL** with **15 interrelated tables** designed fol
 
 ### Entity-Relationship Diagram
 
+> 💡 **Tip:** Click on the diagram to zoom in. GitHub renders this as an interactive SVG.
+
 ```mermaid
+%%{init: {
+  'theme': 'dark',
+  'themeVariables': {
+    'primaryColor': '#1a1a2e',
+    'primaryTextColor': '#e0e0e0',
+    'primaryBorderColor': '#d4af37',
+    'lineColor': '#d4af37',
+    'secondaryColor': '#16213e',
+    'tertiaryColor': '#0f3460',
+    'fontSize': '14px'
+  }
+}}%%
+
 erDiagram
+    %% ═══════════════════════════════════════════
+    %% CORE ENTITY
+    %% ═══════════════════════════════════════════
+
     USER {
-        int id PK
-        string username UK
-        string email UK
-        string password_hash
-        string user_type
+        int id PK "Auto-increment"
+        string username UK "Unique"
+        string email UK "Unique"
+        string password_hash "Werkzeug hashed"
+        string user_type "client | provider | admin"
         string full_name
         string bio
         string avatar_url
         string phone
-        float wallet_balance
-        boolean is_active
-        boolean is_verified
+        float wallet_balance "Default 0.0"
+        boolean is_active "Default true"
+        boolean is_verified "Default false"
         datetime created_at
+        datetime updated_at
     }
+
+    %% ═══════════════════════════════════════════
+    %% SERVICE & CATALOG
+    %% ═══════════════════════════════════════════
 
     CATEGORY {
         int id PK
-        string name UK
+        string name UK "Unique category"
         string description
-        string icon
-        string color
+        string icon "Bootstrap icon class"
+        string color "CSS color class"
+        datetime created_at
     }
 
     SERVICE {
         int id PK
-        string title
+        string title "Indexed"
         string description
         float price
         string delivery_time
-        int user_id FK
-        int category_id FK
+        int user_id FK "References users.id"
+        int category_id FK "References categories.id"
         string image_url
-        string tags
-        boolean is_active
-        boolean is_approved
-        string rejection_reason
-        int view_count
+        string tags "Comma-separated"
+        boolean is_active "Default true"
+        boolean is_approved "Requires admin approval"
+        string rejection_reason "Nullable"
+        int view_count "Default 0"
+        datetime created_at "Indexed"
+        datetime updated_at
     }
+
+    %% ═══════════════════════════════════════════
+    %% ORDERS & TRANSACTIONS
+    %% ═══════════════════════════════════════════
 
     ORDER {
         int id PK
-        int service_id FK
-        int buyer_id FK
-        int seller_id FK
+        int service_id FK "References services.id"
+        int buyer_id FK "References users.id"
+        int seller_id FK "References users.id"
         float total_price
-        string status
-        string requirements
+        string status "pending | in_progress | completed | cancelled"
+        string requirements "Buyer requirements"
         string scope
-        string budget_tier
+        string budget_tier "Basic | Standard | Premium"
         datetime deadline
-        string delivery_note
+        string delivery_note "Seller note"
+        datetime created_at
+        datetime updated_at
         datetime completed_at
-    }
-
-    REVIEW {
-        int id PK
-        int rating
-        string comment
-        int service_id FK
-        int user_id FK
-        datetime created_at
-    }
-
-    MESSAGE {
-        int id PK
-        int order_id FK
-        int sender_id FK
-        string content
-        datetime created_at
     }
 
     TRANSACTION {
         int id PK
-        string txn_id UK
-        int user_id FK
+        string txn_id UK "e.g. TXN20260204215100"
+        int user_id FK "References users.id"
         string username
         float amount
-        string method
-        string status
-        string txn_type
+        string method "card | wallet | upi"
+        string status "success | failed"
+        string txn_type "debit | credit"
         string description
-        float new_balance
-        datetime timestamp
+        float new_balance "Balance after txn"
+        datetime timestamp "Indexed"
     }
 
-    FAVORITE {
+    %% ═══════════════════════════════════════════
+    %% COMMUNICATION
+    %% ═══════════════════════════════════════════
+
+    MESSAGE {
         int id PK
-        int user_id FK
-        int service_id FK
+        int order_id FK "References orders.id"
+        int sender_id FK "References users.id"
+        string content
         datetime created_at
     }
 
     NOTIFICATION {
         int id PK
-        int user_id FK
+        int user_id FK "References users.id"
         string title
         string message
-        string link
-        boolean is_read
+        string link "Optional URL"
+        boolean is_read "Default false"
         datetime created_at
     }
 
+    %% ═══════════════════════════════════════════
+    %% REVIEWS & ENGAGEMENT
+    %% ═══════════════════════════════════════════
+
+    REVIEW {
+        int id PK
+        int rating "1 to 5 stars"
+        string comment
+        int service_id FK "References services.id"
+        int user_id FK "References users.id"
+        datetime created_at
+    }
+
+    FAVORITE {
+        int id PK
+        int user_id FK "References users.id"
+        int service_id FK "References services.id"
+        datetime created_at
+    }
+
+    TESTIMONIAL {
+        int id PK
+        int user_id FK "References users.id"
+        string content
+        string role "Optional title"
+        int rating "Default 5"
+        boolean is_active "Default true"
+        datetime created_at
+    }
+
+    %% ═══════════════════════════════════════════
+    %% BOOKING & AVAILABILITY
+    %% ═══════════════════════════════════════════
+
     AVAILABILITY_SLOT {
         int id PK
-        int provider_id FK
-        datetime start_time
+        int provider_id FK "References users.id"
+        datetime start_time "Indexed"
         datetime end_time
-        boolean is_booked
+        boolean is_booked "Default false"
+        datetime created_at
     }
 
     BOOKING {
         int id PK
-        int slot_id FK
-        int client_id FK
-        int service_id FK
-        int order_id FK
-        string status
+        int slot_id FK "References availability_slots.id"
+        int client_id FK "References users.id"
+        int service_id FK "Nullable"
+        int order_id FK "Nullable"
+        string status "pending | confirmed | completed | cancelled"
         string notes
+        datetime created_at
+        datetime updated_at
     }
+
+    %% ═══════════════════════════════════════════
+    %% CERTIFICATES & PORTFOLIO
+    %% ═══════════════════════════════════════════
 
     CERTIFICATE {
         int id PK
-        string cert_id UK
-        int order_id FK
-        int student_id FK
-        int provider_id FK
+        string cert_id UK "e.g. CERT-A1B2C3D4"
+        int order_id FK "Unique - one per order"
+        int student_id FK "References users.id"
+        int provider_id FK "References users.id"
         string skill_name
         string pdf_filename
         datetime issued_at
     }
 
-    TESTIMONIAL {
-        int id PK
-        int user_id FK
-        string content
-        string role
-        int rating
-        boolean is_active
-    }
-
     PROJECT_SHOWCASE {
         int id PK
-        int user_id FK
+        int user_id FK "References users.id"
         string title
         string description
         string image_url
-        string link
+        string link "External URL"
+        datetime created_at
     }
+
+    %% ═══════════════════════════════════════════
+    %% MISCELLANEOUS
+    %% ═══════════════════════════════════════════
 
     CONTACT_MESSAGE {
         int id PK
@@ -348,15 +406,21 @@ erDiagram
         string email
         string subject
         string message
-        string phone
-        boolean is_read
+        string phone "Nullable"
+        boolean is_read "Default false"
+        datetime created_at
     }
 
     HIDDEN_CHAT {
         int id PK
-        int user_id FK
-        int order_id FK
+        int user_id FK "References users.id"
+        int order_id FK "References orders.id"
+        datetime created_at
     }
+
+    %% ═══════════════════════════════════════════
+    %% RELATIONSHIPS
+    %% ═══════════════════════════════════════════
 
     USER ||--o{ SERVICE : "creates"
     USER ||--o{ ORDER : "places as buyer"
