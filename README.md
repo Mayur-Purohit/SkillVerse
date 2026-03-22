@@ -186,49 +186,246 @@ SkillVerse/
 
 ## 🗄️ Database Schema
 
-The application uses **PostgreSQL** with **13 interrelated tables** designed following proper normalization principles.
+The application uses **PostgreSQL** with **15 interrelated tables** designed following proper normalization principles.
 
 ### Entity-Relationship Diagram
 
-<p align="center">
-  <img src="docs/SkillVerse_ER_Diagram.png" alt="SkillVerse ER Diagram" width="800"/>
-</p>
+```mermaid
+erDiagram
+    USER {
+        int id PK
+        string username UK
+        string email UK
+        string password_hash
+        string user_type
+        string full_name
+        string bio
+        string avatar_url
+        string phone
+        float wallet_balance
+        boolean is_active
+        boolean is_verified
+        datetime created_at
+    }
+
+    CATEGORY {
+        int id PK
+        string name UK
+        string description
+        string icon
+        string color
+    }
+
+    SERVICE {
+        int id PK
+        string title
+        string description
+        float price
+        string delivery_time
+        int user_id FK
+        int category_id FK
+        string image_url
+        string tags
+        boolean is_active
+        boolean is_approved
+        string rejection_reason
+        int view_count
+    }
+
+    ORDER {
+        int id PK
+        int service_id FK
+        int buyer_id FK
+        int seller_id FK
+        float total_price
+        string status
+        string requirements
+        string scope
+        string budget_tier
+        datetime deadline
+        string delivery_note
+        datetime completed_at
+    }
+
+    REVIEW {
+        int id PK
+        int rating
+        string comment
+        int service_id FK
+        int user_id FK
+        datetime created_at
+    }
+
+    MESSAGE {
+        int id PK
+        int order_id FK
+        int sender_id FK
+        string content
+        datetime created_at
+    }
+
+    TRANSACTION {
+        int id PK
+        string txn_id UK
+        int user_id FK
+        string username
+        float amount
+        string method
+        string status
+        string txn_type
+        string description
+        float new_balance
+        datetime timestamp
+    }
+
+    FAVORITE {
+        int id PK
+        int user_id FK
+        int service_id FK
+        datetime created_at
+    }
+
+    NOTIFICATION {
+        int id PK
+        int user_id FK
+        string title
+        string message
+        string link
+        boolean is_read
+        datetime created_at
+    }
+
+    AVAILABILITY_SLOT {
+        int id PK
+        int provider_id FK
+        datetime start_time
+        datetime end_time
+        boolean is_booked
+    }
+
+    BOOKING {
+        int id PK
+        int slot_id FK
+        int client_id FK
+        int service_id FK
+        int order_id FK
+        string status
+        string notes
+    }
+
+    CERTIFICATE {
+        int id PK
+        string cert_id UK
+        int order_id FK
+        int student_id FK
+        int provider_id FK
+        string skill_name
+        string pdf_filename
+        datetime issued_at
+    }
+
+    TESTIMONIAL {
+        int id PK
+        int user_id FK
+        string content
+        string role
+        int rating
+        boolean is_active
+    }
+
+    PROJECT_SHOWCASE {
+        int id PK
+        int user_id FK
+        string title
+        string description
+        string image_url
+        string link
+    }
+
+    CONTACT_MESSAGE {
+        int id PK
+        string name
+        string email
+        string subject
+        string message
+        string phone
+        boolean is_read
+    }
+
+    HIDDEN_CHAT {
+        int id PK
+        int user_id FK
+        int order_id FK
+    }
+
+    USER ||--o{ SERVICE : "creates"
+    USER ||--o{ ORDER : "places as buyer"
+    USER ||--o{ ORDER : "receives as seller"
+    USER ||--o{ REVIEW : "writes"
+    USER ||--o{ FAVORITE : "bookmarks"
+    USER ||--o{ NOTIFICATION : "receives"
+    USER ||--o{ TRANSACTION : "has"
+    USER ||--o{ AVAILABILITY_SLOT : "sets"
+    USER ||--o{ BOOKING : "books"
+    USER ||--o{ TESTIMONIAL : "gives"
+    USER ||--o{ PROJECT_SHOWCASE : "showcases"
+    USER ||--o{ HIDDEN_CHAT : "hides"
+    USER ||--o{ MESSAGE : "sends"
+    CATEGORY ||--o{ SERVICE : "contains"
+    SERVICE ||--o{ REVIEW : "receives"
+    SERVICE ||--o{ ORDER : "is ordered"
+    SERVICE ||--o{ FAVORITE : "is favorited"
+    ORDER ||--o{ MESSAGE : "has"
+    ORDER ||--|| CERTIFICATE : "earns"
+    ORDER ||--o| BOOKING : "linked to"
+    AVAILABILITY_SLOT ||--o| BOOKING : "reserved by"
+```
 
 ### Key Models
 
 | Model | Table | Description |
 |-------|-------|-------------|
 | `User` | `users` | User accounts (clients, providers, admins) with wallet balance |
-| `Service` | `services` | Freelance services with approval workflow |
+| `Service` | `services` | Freelance services with admin approval workflow |
 | `Category` | `categories` | Service categories with icons and colors |
 | `Order` | `orders` | Service orders with status management (pending → in_progress → completed) |
 | `Review` | `reviews` | Star ratings (1–5) and written reviews |
-| `Message` | `messages` | Chat messages linked to orders |
+| `Message` | `messages` | Real-time chat messages linked to orders |
 | `Transaction` | `transactions` | Wallet transaction history (debits, credits, recharges) |
 | `Favorite` | `favorites` | User-service bookmarks (unique constraint) |
 | `Notification` | `notifications` | In-app notification system |
 | `AvailabilitySlot` | `availability_slots` | Provider time slot management |
-| `Booking` | `bookings` | Client booking records |
-| `Certificate` | `certificates` | Completion certificates with unique IDs |
+| `Booking` | `bookings` | Client booking records linked to slots and orders |
+| `Certificate` | `certificates` | PDF completion certificates with QR verification |
+| `Testimonial` | `testimonials` | User testimonials with ratings |
+| `ProjectShowcase` | `project_showcase` | Provider portfolio items |
 | `ContactMessage` | `contact_messages` | Contact form submissions |
+| `HiddenChat` | `hidden_chats` | Tracks hidden chat conversations per user |
 
 ### Key Relationships
 ```
-User ──┬── 1:N ──→ Service        (provider creates services)
-       ├── 1:N ──→ Order          (buyer places / seller receives orders)
-       ├── 1:N ──→ Review         (user writes reviews)
-       ├── 1:N ──→ Favorite       (user bookmarks services)
-       ├── 1:N ──→ Notification   (user receives notifications)
-       ├── 1:N ──→ Transaction    (user's wallet history)
-       ├── 1:N ──→ AvailabilitySlot (provider sets availability)
-       └── 1:N ──→ Booking        (client books slots)
+User ──┬── 1:N ──→ Service           (provider creates services)
+       ├── 1:N ──→ Order             (buyer places / seller receives orders)
+       ├── 1:N ──→ Review            (user writes reviews)
+       ├── 1:N ──→ Favorite          (user bookmarks services)
+       ├── 1:N ──→ Notification      (user receives notifications)
+       ├── 1:N ──→ Transaction       (user's wallet history)
+       ├── 1:N ──→ AvailabilitySlot  (provider sets availability)
+       ├── 1:N ──→ Booking           (client books slots)
+       ├── 1:N ──→ Testimonial       (user gives testimonials)
+       ├── 1:N ──→ ProjectShowcase   (provider showcases projects)
+       └── 1:N ──→ HiddenChat        (user hides chat conversations)
 
-Service ──┬── N:1 ──→ Category    (service belongs to category)
-          ├── 1:N ──→ Review      (service receives reviews)
-          └── 1:N ──→ Order       (service is ordered)
+Service ──┬── N:1 ──→ Category       (service belongs to category)
+          ├── 1:N ──→ Review         (service receives reviews)
+          ├── 1:N ──→ Order          (service is ordered)
+          └── 1:N ──→ Favorite       (service is bookmarked)
 
-Order ──┬── 1:1 ──→ Certificate   (completed order gets certificate)
-        └── 1:N ──→ Message       (order has chat messages)
+Order ──┬── 1:1 ──→ Certificate      (completed order gets certificate)
+        ├── 1:N ──→ Message          (order has chat messages)
+        └── 0:1 ──→ Booking          (order linked to booking)
+
+AvailabilitySlot ── 1:1 ──→ Booking  (slot reserved by booking)
 ```
 
 ---
