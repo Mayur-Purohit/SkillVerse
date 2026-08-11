@@ -34,7 +34,7 @@
 | 🔐 **Authentication** | Email/password registration + Google OAuth 2.0 single sign-on |
 | 🛒 **Service Marketplace** | Browse, search, filter, and order freelance services across multiple categories |
 | 💬 **Real-time Chat** | Socket.IO powered instant messaging between buyers and sellers per order |
-| 💰 **Wallet & Payments** | In-app wallet with recharge, payments, transaction history, and Stripe gateway integration |
+| 💰 **Wallet & Payments** | In-app wallet with recharge, payments, transaction history, and Mock Payment Gateway integration |
 | 📅 **Booking System** | Provider availability slots with client booking flow and status management |
 | 📜 **Certificate Generation** | Premium PDF certificates with QR verification codes for completed orders |
 | 🛡️ **Admin Panel** | Full user management, service approval workflow, analytics dashboard, and contact messages |
@@ -97,7 +97,7 @@
   </tr>
   <tr>
     <td>💳 Payments</td>
-    <td>Stripe API + In-app Wallet</td>
+    <td>Mock Payment Gateway + In-app Wallet</td>
     <td>Secure payment processing & wallet management</td>
   </tr>
   <tr>
